@@ -533,13 +533,7 @@ $currentTable = $tableName ?? null;
                                 <option value="<?php echo htmlspecialchars($columnName); ?>"><?php echo htmlspecialchars($columnName); ?></option>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <option value="id">id</option>
-                            <option value="part_name">part_name</option>
-                            <option value="type">type</option>
-                            <option value="name">name</option>
-                            <option value="bannty">bannty</option>
-                            <option value="created">created</option>
-                            <option value="amount">amount</option>
+                            <option value="">No columns available</option>
                         <?php endif; ?>
                     </select>
                     <select class="filter-operator" style="padding: 2px;">
@@ -572,13 +566,7 @@ $currentTable = $tableName ?? null;
                                         <th><?php echo htmlspecialchars($columnName); ?></th>
                                     <?php endforeach; ?>
                                 <?php else: ?>
-                                    <th>id</th>
-                                    <th>part_name</th>
-                                    <th>type</th>
-                                    <th>name</th>
-                                    <th>bannty</th>
-                                    <th>created</th>
-                                    <th>amount</th>
+                                    <th>No columns available</th>
                                 <?php endif; ?>
                             </tr>
                         </thead>
@@ -601,64 +589,7 @@ $currentTable = $tableName ?? null;
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td class="select-col" style="display: none; text-align: center;"><input type="checkbox" class="row-cb"></td>
-                                    <td>1</td>
-                                    <td>Beeir</td>
-                                    <td>Anma</td>
-                                    <td>New</td>
-                                    <td>1</td>
-                                    <td>1990.000</td>
-                                    <td>3920.00</td>
-                                </tr>
-                                <tr>
-                                    <td class="select-col" style="display: none; text-align: center;"><input type="checkbox" class="row-cb"></td>
-                                    <td>2</td>
-                                    <td>Familly</td>
-                                    <td>Amne</td>
-                                    <td>Header</td>
-                                    <td>2</td>
-                                    <td>1990.000</td>
-                                    <td>2960.00</td>
-                                </tr>
-                                <tr>
-                                    <td class="select-col" style="display: none; text-align: center;"><input type="checkbox" class="row-cb"></td>
-                                    <td>3</td>
-                                    <td>Moyner</td>
-                                    <td>Franc</td>
-                                    <td>Warnior</td>
-                                    <td>3</td>
-                                    <td>1990.000</td>
-                                    <td>2970.00</td>
-                                </tr>
-                                <tr>
-                                    <td class="select-col" style="display: none; text-align: center;"><input type="checkbox" class="row-cb"></td>
-                                    <td>4</td>
-                                    <td>Hankson</td>
-                                    <td>Frank</td>
-                                    <td>Gileorg</td>
-                                    <td>4</td>
-                                    <td>1990.379</td>
-                                    <td>2360.00</td>
-                                </tr>
-                                <tr>
-                                    <td class="select-col" style="display: none; text-align: center;"><input type="checkbox" class="row-cb"></td>
-                                    <td>5</td>
-                                    <td>Wilkley</td>
-                                    <td>Mark</td>
-                                    <td>Emith</td>
-                                    <td>5</td>
-                                    <td>2000.000</td>
-                                    <td>3900.00</td>
-                                </tr>
-                                <tr>
-                                    <td class="select-col" style="display: none; text-align: center;"><input type="checkbox" class="row-cb"></td>
-                                    <td>6</td>
-                                    <td>Prontnson</td>
-                                    <td>Adam</td>
-                                    <td>Smith</td>
-                                    <td>6</td>
-                                    <td>1990.375</td>
-                                    <td>3960.00</td>
+                                    <td colspan="100%" style="text-align: center; font-style: italic; color: #666;">No records found</td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
