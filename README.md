@@ -36,6 +36,9 @@ liteview-php/
 
 ## How to Run
 
+### Live Website
+https://liteview.alwaysdata.net
+
 ### Using a Local Server (XAMPP / MAMP)
 1. Place the `liteview-php` folder in your `htdocs` (XAMPP) or `htdocs` (MAMP) directory.
 2. Open your browser and navigate to:
