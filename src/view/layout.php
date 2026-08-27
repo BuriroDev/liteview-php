@@ -7,6 +7,8 @@ $currentTable = $tableName ?? null;
 <head>
     <meta charset="UTF-8">
     <title>LiteView - SQLite Web Data Viewer</title>
+    <?php $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\'); ?>
+    <link rel="icon" type="image/png" href="<?php echo htmlspecialchars($basePath); ?>/assets/logo.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -19,12 +21,51 @@ $currentTable = $tableName ?? null;
             --row-even: #ffffff;
             --row-odd: #cde2f5;
             --selection-bg: #4a4a4a;
+            --text-color: #000;
         }
+
+        body.night-mode {
+            --bg-color: #1e1e1e;
+            --toolbar-bg-top: #2a2a2a;
+            --toolbar-bg-bottom: #1a1a1a;
+            --panel-border: #444;
+            --header-bg: #222;
+            --table-header-bg: #333;
+            --row-even: #2a2a2a;
+            --row-odd: #333333;
+            --selection-bg: #555;
+            --text-color: #e0e0e0;
+        }
+        body.night-mode .sidebar { background-color: #252525; color: var(--text-color); }
+        body.night-mode .sidebar-tree { background: #252525; }
+        body.night-mode .tree-node:hover { background-color: #333; }
+        body.night-mode .table-wrapper { background: #2a2a2a; }
+        body.night-mode table.data-table th { color: #fff; border-color: #555; }
+        body.night-mode table.data-table td { border-color: #555; color: var(--text-color); }
+        body.night-mode table.data-table tr:hover { background-color: #444; }
+        body.night-mode .content-header { color: var(--text-color); }
+        body.night-mode .query-editor { background: #2a2a2a; color: var(--text-color); border-color: #555; }
+        body.night-mode .query-results-wrapper { background: #2a2a2a; border-color: #555; }
+        body.night-mode .filter-wrapper { background: #252525 !important; border-bottom: 1px solid #555 !important; }
+        body.night-mode .filter-input { background: #333; color: #fff; border: 1px solid #555; }
+        body.night-mode select { background: #333; color: #fff; border: 1px solid #555; }
+        body.night-mode .logo-subtitle { color: #aaa; }
+        body.night-mode .footer { color: #aaa; border-top: 1px solid #444; background: #1e1e1e; }
+        body.night-mode .tree-node i.fa-database { color: #aaa; }
+        body.night-mode .tree-node i.fa-folder { color: #69a3d4; }
+        body.night-mode .tree-node i.fa-table { color: #999; }
+        body.night-mode .tree-node i.fa-eye { color: #999; }
+        body.night-mode .toolbar-area { border-bottom: 1px solid #444; }
+        body.night-mode #data-modal > div { background: #2a2a2a !important; color: #e0e0e0; }
+        body.night-mode #data-modal > div > div:first-child { background: #222 !important; border-bottom: 1px solid #444 !important; }
+        body.night-mode #data-modal > div > div:last-child { background: #222 !important; border-top: 1px solid #444 !important; }
+        body.night-mode #modal-content { background: #333; color: #fff; border: 1px solid #555; }
 
         body {
             margin: 0;
             padding: 0;
             background-color: var(--bg-color);
+            color: var(--text-color);
             font-family: 'Lucida Grande', 'Segoe UI', Tahoma, Arial, sans-serif;
             font-size: 12px;
             display: flex;
@@ -150,7 +191,7 @@ $currentTable = $tableName ?? null;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
         }
 
-        .toolbar-btn i.fa-key {
+        .toolbar-btn i.fa-upload {
             color: #5bc0de;
         }
 
@@ -296,6 +337,9 @@ $currentTable = $tableName ?? null;
             border: 1px solid #b8b8b8;
             padding: 3px 6px;
             white-space: nowrap;
+            max-width: 250px;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         table.data-table th {
@@ -395,25 +439,40 @@ $currentTable = $tableName ?? null;
             </div>
 
             <div class="toolbar">
-                <div class="toolbar-btn">
-                    <i class="fa-solid fa-key"></i>
-                    Connect
+                <!-- Upload DB Form -->
+                <form id="upload-db-form" action="<?php echo htmlspecialchars($_SERVER['SCRIPT_NAME']); ?>/upload" method="POST" enctype="multipart/form-data" style="display: none;">
+                    <input type="file" id="sqlite-file-input" name="sqlite_file" accept=".sqlite,.db,.sqlite3" onchange="document.getElementById('upload-db-form').submit();">
+                </form>
+                
+                <div class="toolbar-btn" onclick="document.getElementById('sqlite-file-input').click();">
+                    <i class="fa-solid fa-upload"></i>
+                    Upload
                 </div>
-                <div class="toolbar-btn active">
+                <div class="toolbar-btn <?php echo (isset($isSqlQueryActive) && $isSqlQueryActive) ? 'active' : ''; ?>">
                     <i class="fa-solid fa-table"></i>
                     SQL Query
+                </div>
+                <div class="toolbar-btn">
+                    <i class="fa-solid fa-check-square"></i>
+                    Select
+                </div>
+                <div class="toolbar-btn">
+                    <i class="fa-solid fa-filter"></i>
+                    Filter
                 </div>
                 <div class="toolbar-btn" id="refresh-btn">
                     <i class="fa-solid fa-sync"></i>
                     Refresh
                 </div>
                 <div class="toolbar-btn">
-                    <i class="fa-solid fa-save"></i>
-                    Save
-                </div>
-                <div class="toolbar-btn">
                     <i class="fa-solid fa-file-export"></i>
                     Export
+                </div>
+            </div>
+
+            <div style="margin-left: auto; display: flex; align-items: center;">
+                <div id="theme-toggle" style="cursor: pointer; font-size: 18px; color: var(--text-color); padding: 8px;">
+                    <i class="fa-solid fa-moon"></i>
                 </div>
             </div>
         </div>
@@ -430,7 +489,7 @@ $currentTable = $tableName ?? null;
                             <div class="tree-node tree-indent"><i class="toggle-icon fa-solid fa-minus-square" style="color:#888; font-size:10px;"></i> <i class="fa-solid fa-folder"></i> Tables</div>
                         </div>
                         <div class="tree-children">
-                            <?php if (isset($tablesList)): ?>
+                            <?php if (isset($tablesList) && !empty($tablesList)): ?>
                                 <?php foreach ($tablesList as $table): ?>
                                     <a href="<?php echo htmlspecialchars($_SERVER['SCRIPT_NAME']); ?>/view/<?php echo urlencode($table['name']); ?>">
                                         <div class="tree-node tree-indent-2 <?php echo ($currentTable === $table['name']) ? 'selected' : ''; ?>">
@@ -438,6 +497,10 @@ $currentTable = $tableName ?? null;
                                         </div>
                                     </a>
                                 <?php endforeach; ?>
+                            <?php else: ?>
+                                <div class="tree-node tree-indent-2" style="color: #999; font-style: italic;">
+                                    Please upload a database using the Upload button.
+                                </div>
                             <?php endif; ?>
                         </div>
 
@@ -463,12 +526,47 @@ $currentTable = $tableName ?? null;
             </div>
 
             <div class="content-area">
-                <div class="content-header">SQLite Table</div>
+                <div class="filter-wrapper" style="display: none; padding: 6px; background: white; border-bottom: 1px solid var(--panel-border); align-items: center; gap: 6px;">
+                    <select class="filter-column" style="padding: 2px;">
+                        <?php if (isset($results) && !empty($results)): ?>
+                            <?php foreach (array_keys($results[0]) as $columnName): ?>
+                                <option value="<?php echo htmlspecialchars($columnName); ?>"><?php echo htmlspecialchars($columnName); ?></option>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <option value="id">id</option>
+                            <option value="part_name">part_name</option>
+                            <option value="type">type</option>
+                            <option value="name">name</option>
+                            <option value="bannty">bannty</option>
+                            <option value="created">created</option>
+                            <option value="amount">amount</option>
+                        <?php endif; ?>
+                    </select>
+                    <select class="filter-operator" style="padding: 2px;">
+                        <option value="=">=</option>
+                        <option value="!=">!=</option>
+                        <option value=">">&gt;</option>
+                        <option value=">=">&gt;=</option>
+                        <option value="<">&lt;</option>
+                        <option value="<=">&lt;=</option>
+                        <option value="LIKE">LIKE</option>
+                        <option value="IN">IN</option>
+                        <option value="BETWEEN">BETWEEN</option>
+                        <option value="IS NULL">IS NULL</option>
+                        <option value="IS NOT NULL">IS NOT NULL</option>
+                    </select>
+                    <input type="text" class="filter-input" placeholder="Filter text..." style="padding: 2px; flex: 1;">
+                </div>
+                <div class="content-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>SQLite Table</span>
+                    <button id="copy-selected-btn" style="display: none; padding: 4px 8px; background: #5cb85c; color: white; border: 1px solid #4cae4c; border-radius: 3px; cursor: pointer; font-size: 11px;"><i class="fa-solid fa-copy"></i> Copy Selected</button>
+                </div>
 
                 <div class="table-wrapper">
                     <table class="data-table">
                         <thead>
                             <tr>
+                                <th class="select-col" style="display: none; width: 30px; text-align: center;"><input type="checkbox" id="select-all-cb"></th>
                                 <?php if (isset($results) && !empty($results)): ?>
                                     <?php foreach (array_keys($results[0]) as $columnName): ?>
                                         <th><?php echo htmlspecialchars($columnName); ?></th>
@@ -488,13 +586,22 @@ $currentTable = $tableName ?? null;
                             <?php if (isset($results) && !empty($results)): ?>
                                 <?php foreach ($results as $row): ?>
                                     <tr>
-                                        <?php foreach ($row as $data): ?>
-                                            <td><?php echo htmlspecialchars($data); ?></td>
+                                        <td class="select-col" style="display: none; text-align: center;"><input type="checkbox" class="row-cb"></td>
+                                        <?php foreach ($row as $data): 
+                                            $fullData = (string)$data;
+                                            $strData = $fullData;
+                                            // Truncate heavy JSON or massive text fields to 100 chars to prevent browser hangs
+                                            if (strlen($strData) > 100) {
+                                                $strData = substr($strData, 0, 100) . '... [TRUNCATED]';
+                                            }
+                                        ?>
+                                            <td class="data-cell" data-full="<?php echo htmlspecialchars($fullData, ENT_QUOTES, 'UTF-8'); ?>" title="Double click to view full data" style="cursor: pointer;"><?php echo htmlspecialchars($strData); ?></td>
                                         <?php endforeach; ?>
                                     </tr>
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <tr>
+                                    <td class="select-col" style="display: none; text-align: center;"><input type="checkbox" class="row-cb"></td>
                                     <td>1</td>
                                     <td>Beeir</td>
                                     <td>Anma</td>
@@ -504,6 +611,7 @@ $currentTable = $tableName ?? null;
                                     <td>3920.00</td>
                                 </tr>
                                 <tr>
+                                    <td class="select-col" style="display: none; text-align: center;"><input type="checkbox" class="row-cb"></td>
                                     <td>2</td>
                                     <td>Familly</td>
                                     <td>Amne</td>
@@ -513,6 +621,7 @@ $currentTable = $tableName ?? null;
                                     <td>2960.00</td>
                                 </tr>
                                 <tr>
+                                    <td class="select-col" style="display: none; text-align: center;"><input type="checkbox" class="row-cb"></td>
                                     <td>3</td>
                                     <td>Moyner</td>
                                     <td>Franc</td>
@@ -522,6 +631,7 @@ $currentTable = $tableName ?? null;
                                     <td>2970.00</td>
                                 </tr>
                                 <tr>
+                                    <td class="select-col" style="display: none; text-align: center;"><input type="checkbox" class="row-cb"></td>
                                     <td>4</td>
                                     <td>Hankson</td>
                                     <td>Frank</td>
@@ -531,6 +641,7 @@ $currentTable = $tableName ?? null;
                                     <td>2360.00</td>
                                 </tr>
                                 <tr>
+                                    <td class="select-col" style="display: none; text-align: center;"><input type="checkbox" class="row-cb"></td>
                                     <td>5</td>
                                     <td>Wilkley</td>
                                     <td>Mark</td>
@@ -540,6 +651,7 @@ $currentTable = $tableName ?? null;
                                     <td>3900.00</td>
                                 </tr>
                                 <tr>
+                                    <td class="select-col" style="display: none; text-align: center;"><input type="checkbox" class="row-cb"></td>
                                     <td>6</td>
                                     <td>Prontnson</td>
                                     <td>Adam</td>
@@ -553,36 +665,53 @@ $currentTable = $tableName ?? null;
                     </table>
                 </div>
 
-                <div class="query-editor-wrapper">
-                    <textarea class="query-editor">SELECT SELECT data SELECT * FROM 'Lite'
-FROM View, FROM 'Lite'</textarea>
+                <?php $showSql = isset($isSqlQueryActive) && $isSqlQueryActive; ?>
+                <div class="query-editor-wrapper" style="display: <?php echo $showSql ? 'block' : 'none'; ?>;">
+                    <form action="<?php echo htmlspecialchars($_SERVER['SCRIPT_NAME']); ?>/sql" method="POST">
+                        <textarea class="query-editor" name="query"><?php echo htmlspecialchars($query ?? "SELECT * FROM sqlite_master;"); ?></textarea>
+                        <div style="padding: 4px; text-align: right;">
+                            <button type="submit" style="padding: 4px 12px; cursor: pointer; background: #5cb85c; color: white; border: 1px solid #4cae4c; border-radius: 3px;">Run Query</button>
+                        </div>
+                    </form>
                 </div>
 
-                <div class="query-results-wrapper">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>id</th>
-                                <th>name</th>
-                                <th>type</th>
-                                <th>value</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1002</td>
-                                <td>Gartner De Baquinor</td>
-                                <td>Female</td>
-                                <td>Margane</td>
-                            </tr>
-                            <tr>
-                                <td>1003</td>
-                                <td>Uo Carbagos Prevador</td>
-                                <td>Female</td>
-                                <td>Margana</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="query-results-wrapper" style="display: <?php echo $showSql ? 'block' : 'none'; ?>;">
+                    <?php if (isset($queryError) && $queryError): ?>
+                        <div style="color: red; padding: 10px;">Error: <?php echo htmlspecialchars($queryError); ?></div>
+                    <?php else: ?>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <?php if (isset($queryResults) && !empty($queryResults)): ?>
+                                        <?php foreach (array_keys($queryResults[0]) as $col): ?>
+                                            <th><?php echo htmlspecialchars($col); ?></th>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <th>Result</th>
+                                    <?php endif; ?>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (isset($queryResults) && !empty($queryResults)): ?>
+                                    <?php foreach ($queryResults as $row): ?>
+                                        <tr>
+                                            <?php foreach ($row as $data): 
+                                                $fullData = (string)$data;
+                                                $strData = $fullData;
+                                                if (strlen($strData) > 100) {
+                                                    $strData = substr($strData, 0, 100) . '... [TRUNCATED]';
+                                                }
+                                            ?>
+                                                <td class="data-cell" data-full="<?php echo htmlspecialchars($fullData, ENT_QUOTES, 'UTF-8'); ?>" title="Double click to view full data" style="cursor: pointer;"><?php echo htmlspecialchars($strData); ?></td>
+                                            <?php endforeach; ?>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr><td>No results.</td></tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -592,9 +721,99 @@ FROM View, FROM 'Lite'</textarea>
         </div>
     </div>
 
+    <div id="data-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: white; width: 60%; height: 60%; display: flex; flex-direction: column; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+            <div style="padding: 10px; border-bottom: 1px solid #ccc; display: flex; justify-content: space-between; align-items: center; background: #f5f5f5; border-radius: 6px 6px 0 0;">
+                <h3 style="margin: 0; font-size: 14px;">Cell Data</h3>
+                <button id="close-modal-btn" style="cursor: pointer; background: none; border: none; font-size: 16px;"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div style="flex: 1; padding: 10px; overflow: hidden; display: flex;">
+                <textarea id="modal-content" style="width: 100%; height: 100%; resize: none; border: 1px solid #ccc; padding: 10px; font-family: monospace; font-size: 12px; box-sizing: border-box;" readonly></textarea>
+            </div>
+            <div style="padding: 10px; border-top: 1px solid #ccc; text-align: right; background: #f5f5f5; border-radius: 0 0 6px 6px;">
+                <button id="modal-copy-btn" style="padding: 6px 12px; background: #5bc0de; color: white; border: 1px solid #46b8da; border-radius: 3px; cursor: pointer;"><i class="fa-solid fa-copy"></i> Copy</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        var themeToggle = document.getElementById('theme-toggle');
+        var body = document.body;
+        
+        // Load theme from localStorage
+        if (localStorage.getItem('theme') === 'night') {
+            body.classList.add('night-mode');
+            themeToggle.innerHTML = '<i class="fa-solid fa-sun"></i>';
+        }
+        
+        themeToggle.addEventListener('click', function() {
+            body.classList.toggle('night-mode');
+            if (body.classList.contains('night-mode')) {
+                localStorage.setItem('theme', 'night');
+                themeToggle.innerHTML = '<i class="fa-solid fa-sun"></i>';
+            } else {
+                localStorage.setItem('theme', 'light');
+                themeToggle.innerHTML = '<i class="fa-solid fa-moon"></i>';
+            }
+        });
+
         document.getElementById('refresh-btn').addEventListener('click', function() {
             location.reload();
+        });
+
+        // Add active state to toolbar buttons when clicked
+        document.querySelectorAll('.toolbar-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var isToggleBtn = this.innerText.includes('SQL Query') || this.innerText.includes('Filter') || this.innerText.includes('Select');
+                var wasActive = this.classList.contains('active');
+
+                if (isToggleBtn && wasActive) {
+                    // Toggle off if clicking an already-active toggle button
+                    this.classList.remove('active');
+                } else {
+                    // Otherwise, activate this button and deactivate others
+                    document.querySelectorAll('.toolbar-btn').forEach(function(b) {
+                        b.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                }
+
+                // Toggle sections based on which button is active
+                var sqlQueryActive = false;
+                var filterActive = false;
+                var selectActive = false;
+                
+                document.querySelectorAll('.toolbar-btn').forEach(function(b) {
+                    if (b.classList.contains('active')) {
+                        if (b.innerText.includes('SQL Query')) sqlQueryActive = true;
+                        if (b.innerText.includes('Filter')) filterActive = true;
+                        if (b.innerText.includes('Select')) selectActive = true;
+                    }
+                });
+
+                var queryEditor = document.querySelector('.query-editor-wrapper');
+                var queryResults = document.querySelector('.query-results-wrapper');
+                var filterWrapper = document.querySelector('.filter-wrapper');
+                
+                if (queryEditor) queryEditor.style.display = sqlQueryActive ? '' : 'none';
+                if (queryResults) queryResults.style.display = sqlQueryActive ? '' : 'none';
+                if (filterWrapper) filterWrapper.style.display = filterActive ? 'flex' : 'none';
+                
+                // Select columns toggle
+                document.querySelectorAll('.select-col').forEach(function(col) {
+                    col.style.display = selectActive ? '' : 'none';
+                });
+                
+                if (!selectActive) {
+                    var selectAllCb = document.getElementById('select-all-cb');
+                    if(selectAllCb) selectAllCb.checked = false;
+                    document.querySelectorAll('.row-cb').forEach(function(cb) {
+                        cb.checked = false;
+                    });
+                    var copyBtn = document.getElementById('copy-selected-btn');
+                    if (copyBtn) copyBtn.style.display = 'none';
+                }
+            });
         });
 
         function toggleTree(element) {
@@ -618,6 +837,231 @@ FROM View, FROM 'Lite'</textarea>
                     }
                 }
             }
+        }
+
+        // Filter functionality
+        var filterInput = document.querySelector('.filter-input');
+        var filterColumn = document.querySelector('.filter-column');
+        var filterOperator = document.querySelector('.filter-operator');
+        var dataTableBody = document.querySelector('.table-wrapper .data-table tbody');
+
+        function applyFilter() {
+            if (!dataTableBody) return;
+            var rows = dataTableBody.querySelectorAll('tr');
+            var colIndex = filterColumn.selectedIndex;
+            var op = filterOperator.value;
+            var val = filterInput.value.toLowerCase().trim();
+
+            // Toggle input field state based on operator
+            if (op === 'IS NULL' || op === 'IS NOT NULL') {
+                filterInput.disabled = true;
+                filterInput.style.backgroundColor = '#eee';
+            } else {
+                filterInput.disabled = false;
+                filterInput.style.backgroundColor = '';
+            }
+
+            rows.forEach(function(row) {
+                if (val === '' && op !== 'IS NULL' && op !== 'IS NOT NULL') {
+                    row.style.display = '';
+                    return;
+                }
+                var cells = row.querySelectorAll('td:not(.select-col)');
+                if (colIndex >= 0 && colIndex < cells.length) {
+                    var targetCell = cells[colIndex];
+                    var cellVal = (targetCell.hasAttribute('data-full') ? targetCell.getAttribute('data-full') : targetCell.textContent).toLowerCase().trim();
+                    var numCellVal = parseFloat(cellVal);
+                    var numVal = parseFloat(val);
+                    var match = false;
+                    
+                    switch (op) {
+                        case '=':
+                            match = cellVal === val;
+                            break;
+                        case '!=':
+                            match = cellVal !== val;
+                            break;
+                        case '>':
+                            if (!isNaN(numCellVal) && !isNaN(numVal)) {
+                                match = numCellVal > numVal;
+                            } else {
+                                match = cellVal > val;
+                            }
+                            break;
+                        case '>=':
+                            if (!isNaN(numCellVal) && !isNaN(numVal)) {
+                                match = numCellVal >= numVal;
+                            } else {
+                                match = cellVal >= val;
+                            }
+                            break;
+                        case '<':
+                            if (!isNaN(numCellVal) && !isNaN(numVal)) {
+                                match = numCellVal < numVal;
+                            } else {
+                                match = cellVal < val;
+                            }
+                            break;
+                        case '<=':
+                            if (!isNaN(numCellVal) && !isNaN(numVal)) {
+                                match = numCellVal <= numVal;
+                            } else {
+                                match = cellVal <= val;
+                            }
+                            break;
+                        case 'LIKE':
+                            match = cellVal.includes(val);
+                            break;
+                        case 'IN':
+                            var inVals = val.split(',').map(function(item) { return item.trim(); });
+                            match = inVals.includes(cellVal);
+                            break;
+                        case 'BETWEEN':
+                            var betweenVals = val.split(/\s+and\s+|,/i).map(function(item) { return item.trim(); });
+                            if (betweenVals.length === 2) {
+                                var num1 = parseFloat(betweenVals[0]);
+                                var num2 = parseFloat(betweenVals[1]);
+                                if (!isNaN(numCellVal) && !isNaN(num1) && !isNaN(num2)) {
+                                    match = numCellVal >= num1 && numCellVal <= num2;
+                                } else {
+                                    match = cellVal >= betweenVals[0] && cellVal <= betweenVals[1];
+                                }
+                            }
+                            break;
+                        case 'IS NULL':
+                            match = cellVal === '' || cellVal === 'null';
+                            break;
+                        case 'IS NOT NULL':
+                            match = cellVal !== '' && cellVal !== 'null';
+                            break;
+                    }
+                    
+                    row.style.display = match ? '' : 'none';
+                }
+            });
+        }
+
+        if (filterInput && filterColumn && filterOperator) {
+            filterInput.addEventListener('input', applyFilter);
+            filterColumn.addEventListener('change', applyFilter);
+            filterOperator.addEventListener('change', applyFilter);
+        }
+
+        // Select and Copy logic
+        var selectAllCb = document.getElementById('select-all-cb');
+        var copySelectedBtn = document.getElementById('copy-selected-btn');
+        
+        function updateCopyButtonVisibility() {
+            var anyChecked = document.querySelector('.row-cb:checked') !== null;
+            if (copySelectedBtn) {
+                copySelectedBtn.style.display = anyChecked ? 'block' : 'none';
+            }
+        }
+
+        if (selectAllCb) {
+            selectAllCb.addEventListener('change', function() {
+                var isChecked = this.checked;
+                // Only select visible rows (respecting filter)
+                document.querySelectorAll('.table-wrapper .data-table tbody tr').forEach(function(row) {
+                    if (row.style.display !== 'none') {
+                        var cb = row.querySelector('.row-cb');
+                        if (cb) cb.checked = isChecked;
+                    }
+                });
+                updateCopyButtonVisibility();
+            });
+        }
+
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.classList.contains('row-cb')) {
+                updateCopyButtonVisibility();
+                // Update select all checkbox state
+                if (!e.target.checked && selectAllCb) {
+                    selectAllCb.checked = false;
+                }
+            }
+        });
+
+        if (copySelectedBtn) {
+            copySelectedBtn.addEventListener('click', function() {
+                var table = document.querySelector('.table-wrapper .data-table');
+                if (!table) return;
+                
+                var headers = [];
+                var headerCells = table.querySelectorAll('thead th:not(.select-col)');
+                headerCells.forEach(function(th) {
+                    headers.push(th.innerText.trim());
+                });
+
+                var dataToCopy = headers.join('\t') + '\n';
+                
+                var rows = table.querySelectorAll('tbody tr');
+                rows.forEach(function(row) {
+                    var cb = row.querySelector('.row-cb');
+                    if (cb && cb.checked && row.style.display !== 'none') {
+                        var rowData = [];
+                        var cells = row.querySelectorAll('td:not(.select-col)');
+                        cells.forEach(function(td) {
+                            var text = td.hasAttribute('data-full') ? td.getAttribute('data-full') : td.innerText.trim();
+                            rowData.push(text);
+                        });
+                        dataToCopy += rowData.join('\t') + '\n';
+                    }
+                });
+
+                navigator.clipboard.writeText(dataToCopy).then(function() {
+                    var originalText = copySelectedBtn.innerHTML;
+                    copySelectedBtn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+                    setTimeout(function() {
+                        copySelectedBtn.innerHTML = originalText;
+                    }, 2000);
+                }).catch(function(err) {
+                    console.error('Failed to copy: ', err);
+                });
+            });
+        }
+
+        // Modal Logic
+        var dataModal = document.getElementById('data-modal');
+        var modalContent = document.getElementById('modal-content');
+        var closeModalBtn = document.getElementById('close-modal-btn');
+        var modalCopyBtn = document.getElementById('modal-copy-btn');
+
+        document.addEventListener('dblclick', function(e) {
+            var td = e.target.closest('td.data-cell');
+            if (td) {
+                var fullData = td.hasAttribute('data-full') ? td.getAttribute('data-full') : td.innerText;
+                modalContent.value = fullData;
+                dataModal.style.display = 'flex';
+            }
+        });
+
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', function() {
+                dataModal.style.display = 'none';
+            });
+        }
+        
+        if (dataModal) {
+            dataModal.addEventListener('click', function(e) {
+                if (e.target === dataModal) {
+                    dataModal.style.display = 'none';
+                }
+            });
+        }
+
+        if (modalCopyBtn) {
+            modalCopyBtn.addEventListener('click', function() {
+                navigator.clipboard.writeText(modalContent.value).then(function() {
+                    var original = modalCopyBtn.innerHTML;
+                    modalCopyBtn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+                    setTimeout(function() {
+                        modalCopyBtn.innerHTML = original;
+                    }, 2000);
+                }).catch(function(err) {
+                    console.error('Failed to copy modal content: ', err);
+                });
+            });
         }
     </script>
 </body>

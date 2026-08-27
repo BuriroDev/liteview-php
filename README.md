@@ -9,6 +9,10 @@ A lightweight, custom-built PHP web application for dynamically viewing SQLite d
 ## Features
 - **Dynamic Routing:** Routes all requests through a single `public/index.php` entry point.
 - **Dynamic Table Viewer:** A single, reusable controller and view that can render any table in the database dynamically without writing new HTML/SQL for every table.
+- **Advanced Data Filtering:** Instant frontend filtering supporting `=, !=, >, <, >=, <=, LIKE, IN, BETWEEN, IS NULL, IS NOT NULL` without needing to refresh the page.
+- **Dark Mode Support:** Built-in theme toggling (Light/Night mode) that saves your preference.
+- **Row Selection & Copy:** Select individual rows using checkboxes and easily copy the formatted data to your clipboard.
+- **Data Inspection Modal:** Double-click on any cell to view and copy the full contents (perfect for long JSON strings or text blocks).
 - **Home Dashboard:** Automatically reads the database schema and generates a menu of all available tables.
 - **Security:** Whitelists allowed tables to prevent arbitrary database access.
 

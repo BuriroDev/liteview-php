@@ -1,9 +1,15 @@
 <?php
+session_start();
+
 $url = $_SERVER['PATH_INFO'] ?? '/';
 
 $urlPieces = explode('/', trim($url, '/'));
 
-if (isset($urlPieces[0]) && $urlPieces[0] === 'view' && isset($urlPieces[1])) {
+if ($url === '/upload') {
+    require __DIR__ . '/../src/Controllers/UploadController.php';
+    $controller = new UploadController();
+    $controller->upload();
+} elseif (isset($urlPieces[0]) && $urlPieces[0] === 'view' && isset($urlPieces[1])) {
     
     $tableName = $urlPieces[1]; 
     
@@ -12,6 +18,10 @@ if (isset($urlPieces[0]) && $urlPieces[0] === 'view' && isset($urlPieces[1])) {
     
     $controller->showTable($tableName);
 
+} elseif ($url === '/sql') {
+    require __DIR__ . '/../src/Controllers/SqlController.php';
+    $controller = new SqlController();
+    $controller->executeQuery();
 } elseif ($url === '/') {
     require __DIR__ . '/../src/Controllers/HomeController.php';
     $controller = new HomeController();
