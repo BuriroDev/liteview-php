@@ -80,8 +80,10 @@ class AiController {
                     } catch (Exception $e) {
                         $queryError = "AI Generated SQL Error: " . $e->getMessage() . "\nGenerated SQL: $query";
                     }
+                } else if (isset($json['error'])) {
+                    $queryError = "Gemini API Error: " . ($json['error']['message'] ?? 'Unknown error');
                 } else {
-                    $queryError = "Failed to parse AI response. " . ($json['error']['message'] ?? 'Unknown error');
+                    $queryError = "Failed to parse AI response. Check API key and quota.";
                 }
             } else {
                 $queryError = "Failed to connect to AI service.";
