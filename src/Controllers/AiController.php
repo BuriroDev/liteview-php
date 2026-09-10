@@ -8,20 +8,17 @@ class AiController {
         $queryError = null;
         $query = null;
         $userQuestion = isset($_POST['question']) ? trim($_POST['question']) : "";
-        $postedApiKey = isset($_POST['api_key']) ? trim($_POST['api_key']) : "";
-        $apiKey = $postedApiKey;
+        $apiKey = "";
 
-        if (empty($apiKey)) {
-            $envPath = __DIR__ . '/../../.env';
-            if (file_exists($envPath)) {
-                $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-                foreach ($lines as $line) {
-                    if (strpos(trim($line), '#') === 0) continue;
-                    $parts = explode('=', $line, 2);
-                    if (count($parts) === 2 && trim($parts[0]) === 'GEMINI_API_KEY') {
-                        $apiKey = trim(trim($parts[1]), "\"'");
-                        break;
-                    }
+        $envPath = __DIR__ . '/../../.env';
+        if (file_exists($envPath)) {
+            $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            foreach ($lines as $line) {
+                if (strpos(trim($line), '#') === 0) continue;
+                $parts = explode('=', $line, 2);
+                if (count($parts) === 2 && trim($parts[0]) === 'GEMINI_API_KEY') {
+                    $apiKey = trim(trim($parts[1]), "\"'");
+                    break;
                 }
             }
         }
@@ -90,7 +87,7 @@ class AiController {
                 $queryError = "Failed to connect to AI service.";
             }
         } else if (!$apiKey && $userQuestion) {
-            $queryError = "API Key is required to use AI Query.";
+            $queryError = "API Key is required to use AI Query. Please set GEMINI_API_KEY in .env file.";
         }
 
         $isAiQueryActive = true;

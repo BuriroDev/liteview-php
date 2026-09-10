@@ -613,7 +613,6 @@ $currentTable = $tableName ?? null;
                 <div class="ai-editor-wrapper" style="display: <?php echo (isset($isAiQueryActive) && $isAiQueryActive) ? 'block' : 'none'; ?>; padding: 10px; background: white; border-bottom: 1px solid var(--panel-border);">
                     <form action="<?php echo htmlspecialchars($_SERVER['SCRIPT_NAME']); ?>/ai" method="POST" style="display: flex; gap: 8px; align-items: center;">
                         <input type="text" name="question" placeholder="Ask AI (e.g. show students older than 20)" value="<?php echo htmlspecialchars($userQuestion ?? ''); ?>" style="flex: 1; padding: 6px; font-size: 13px; border: 1px solid #ccc; border-radius: 3px;">
-                        <input type="password" name="api_key" placeholder="Gemini API Key" value="<?php echo htmlspecialchars($postedApiKey ?? ''); ?>" style="padding: 6px; width: 250px; font-size: 13px; border: 1px solid #ccc; border-radius: 3px;">
                         <button type="submit" style="padding: 6px 16px; cursor: pointer; background: #9c27b0; color: white; border: 1px solid #7b1fa2; border-radius: 3px; font-weight: bold;"><i class="fa-solid fa-robot"></i> Ask AI</button>
                     </form>
                 </div>
@@ -1010,6 +1009,8 @@ $currentTable = $tableName ?? null;
                 });
             });
         }
+
+
     </script>
 </body>
 

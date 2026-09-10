@@ -19,10 +19,8 @@ Thumbs.db
 # PHP / Composer
 vendor/
 composer.phar
-.env
 
 # Logs
 *.log
 error_log
 
-.env
