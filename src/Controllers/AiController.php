@@ -10,7 +10,7 @@ class AiController {
         $userQuestion = isset($_POST['question']) ? trim($_POST['question']) : "";
         $apiKey = "";
 
-        $envPath = __DIR__ . '/../../.env';
+        $envPath = getenv('HOME') . '/secrets/.env';
         if (file_exists($envPath)) {
             $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
             foreach ($lines as $line) {
