@@ -448,9 +448,13 @@ $currentTable = $tableName ?? null;
                     <i class="fa-solid fa-upload"></i>
                     Upload
                 </div>
-                <div class="toolbar-btn <?php echo (isset($isSqlQueryActive) && $isSqlQueryActive) ? 'active' : ''; ?>">
+                <div class="toolbar-btn <?php echo (isset($isSqlQueryActive) && $isSqlQueryActive && !isset($isAiQueryActive)) ? 'active' : ''; ?>">
                     <i class="fa-solid fa-table"></i>
                     SQL Query
+                </div>
+                <div class="toolbar-btn <?php echo (isset($isAiQueryActive) && $isAiQueryActive) ? 'active' : ''; ?>">
+                    <i class="fa-solid fa-robot"></i>
+                    AI Query
                 </div>
                 <div class="toolbar-btn">
                     <i class="fa-solid fa-check-square"></i>
@@ -596,13 +600,21 @@ $currentTable = $tableName ?? null;
                     </table>
                 </div>
 
-                <?php $showSql = isset($isSqlQueryActive) && $isSqlQueryActive; ?>
-                <div class="query-editor-wrapper" style="display: <?php echo $showSql ? 'block' : 'none'; ?>;">
+                <?php $showSql = (isset($isSqlQueryActive) && $isSqlQueryActive) || (isset($isAiQueryActive) && $isAiQueryActive); ?>
+                <div class="query-editor-wrapper" style="display: <?php echo (isset($isSqlQueryActive) && $isSqlQueryActive && !isset($isAiQueryActive)) ? 'block' : 'none'; ?>;">
                     <form action="<?php echo htmlspecialchars($_SERVER['SCRIPT_NAME']); ?>/sql" method="POST">
                         <textarea class="query-editor" name="query"><?php echo htmlspecialchars($query ?? "SELECT * FROM sqlite_master;"); ?></textarea>
                         <div style="padding: 4px; text-align: right;">
                             <button type="submit" style="padding: 4px 12px; cursor: pointer; background: #5cb85c; color: white; border: 1px solid #4cae4c; border-radius: 3px;">Run Query</button>
                         </div>
+                    </form>
+                </div>
+
+                <div class="ai-editor-wrapper" style="display: <?php echo (isset($isAiQueryActive) && $isAiQueryActive) ? 'block' : 'none'; ?>; padding: 10px; background: white; border-bottom: 1px solid var(--panel-border);">
+                    <form action="<?php echo htmlspecialchars($_SERVER['SCRIPT_NAME']); ?>/ai" method="POST" style="display: flex; gap: 8px; align-items: center;">
+                        <input type="text" name="question" placeholder="Ask AI (e.g. show students older than 20)" value="<?php echo htmlspecialchars($userQuestion ?? ''); ?>" style="flex: 1; padding: 6px; font-size: 13px; border: 1px solid #ccc; border-radius: 3px;">
+                        <input type="password" name="api_key" placeholder="Gemini API Key" value="<?php echo htmlspecialchars($postedApiKey ?? ''); ?>" style="padding: 6px; width: 250px; font-size: 13px; border: 1px solid #ccc; border-radius: 3px;">
+                        <button type="submit" style="padding: 6px 16px; cursor: pointer; background: #9c27b0; color: white; border: 1px solid #7b1fa2; border-radius: 3px; font-weight: bold;"><i class="fa-solid fa-robot"></i> Ask AI</button>
                     </form>
                 </div>
 
@@ -695,7 +707,7 @@ $currentTable = $tableName ?? null;
         // Add active state to toolbar buttons when clicked
         document.querySelectorAll('.toolbar-btn').forEach(function(btn) {
             btn.addEventListener('click', function() {
-                var isToggleBtn = this.innerText.includes('SQL Query') || this.innerText.includes('Filter') || this.innerText.includes('Select');
+                var isToggleBtn = this.innerText.includes('SQL Query') || this.innerText.includes('AI Query') || this.innerText.includes('Filter') || this.innerText.includes('Select');
                 var wasActive = this.classList.contains('active');
 
                 if (isToggleBtn && wasActive) {
@@ -711,23 +723,27 @@ $currentTable = $tableName ?? null;
 
                 // Toggle sections based on which button is active
                 var sqlQueryActive = false;
+                var aiQueryActive = false;
                 var filterActive = false;
                 var selectActive = false;
                 
                 document.querySelectorAll('.toolbar-btn').forEach(function(b) {
                     if (b.classList.contains('active')) {
                         if (b.innerText.includes('SQL Query')) sqlQueryActive = true;
+                        if (b.innerText.includes('AI Query')) aiQueryActive = true;
                         if (b.innerText.includes('Filter')) filterActive = true;
                         if (b.innerText.includes('Select')) selectActive = true;
                     }
                 });
 
                 var queryEditor = document.querySelector('.query-editor-wrapper');
+                var aiEditor = document.querySelector('.ai-editor-wrapper');
                 var queryResults = document.querySelector('.query-results-wrapper');
                 var filterWrapper = document.querySelector('.filter-wrapper');
                 
                 if (queryEditor) queryEditor.style.display = sqlQueryActive ? '' : 'none';
-                if (queryResults) queryResults.style.display = sqlQueryActive ? '' : 'none';
+                if (aiEditor) aiEditor.style.display = aiQueryActive ? '' : 'none';
+                if (queryResults) queryResults.style.display = (sqlQueryActive || aiQueryActive) ? '' : 'none';
                 if (filterWrapper) filterWrapper.style.display = filterActive ? 'flex' : 'none';
                 
                 // Select columns toggle

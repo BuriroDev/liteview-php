@@ -22,6 +22,10 @@ if ($url === '/upload') {
     require __DIR__ . '/../src/Controllers/SqlController.php';
     $controller = new SqlController();
     $controller->executeQuery();
+} elseif ($url === '/ai') {
+    require __DIR__ . '/../src/Controllers/AiController.php';
+    $controller = new AiController();
+    $controller->ask();
 } elseif ($url === '/') {
     require __DIR__ . '/../src/Controllers/HomeController.php';
     $controller = new HomeController();
