@@ -448,6 +448,12 @@ $currentTable = $tableName ?? null;
                     <i class="fa-solid fa-upload"></i>
                     Upload
                 </div>
+                <?php if (isset($_SESSION['active_db'])): ?>
+                <div class="toolbar-btn" onclick="if(confirm('Are you sure you want to remove the current database?')) { window.location.href='<?php echo htmlspecialchars($_SERVER['SCRIPT_NAME']); ?>/remove-db'; }">
+                    <i class="fa-solid fa-trash" style="color: #d9534f;"></i>
+                    Remove DB
+                </div>
+                <?php endif; ?>
                 <div class="toolbar-btn <?php echo (isset($isSqlQueryActive) && $isSqlQueryActive && !isset($isAiQueryActive)) ? 'active' : ''; ?>">
                     <i class="fa-solid fa-table"></i>
                     SQL Query

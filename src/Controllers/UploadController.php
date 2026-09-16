@@ -25,4 +25,19 @@ class UploadController {
         header("Location: $basePath");
         exit;
     }
+
+    public function remove() {
+        if (isset($_SESSION['active_db'])) {
+            $dbPath = $_SESSION['active_db'];
+            // Check if it's in the uploads directory for safety before deleting
+            if (file_exists($dbPath) && strpos($dbPath, '/database/uploads/') !== false) {
+                unlink($dbPath);
+            }
+            unset($_SESSION['active_db']);
+        }
+        
+        $basePath = htmlspecialchars($_SERVER['SCRIPT_NAME']);
+        header("Location: $basePath");
+        exit;
+    }
 }

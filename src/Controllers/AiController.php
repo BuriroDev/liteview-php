@@ -50,18 +50,20 @@ class AiController {
                 ]
             ];
 
-            $options = [
-                'http' => [
-                    'header'  => "Content-type: application/json\r\n",
-                    'method'  => 'POST',
-                    'content' => json_encode($data),
-                    'ignore_errors' => true
-                ]
-            ];
-            $context  = stream_context_create($options);
-            $response = file_get_contents($url, false, $context);
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+            curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4); // Force IPv4
+            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
             
-            if ($response !== false) {
+            $response = curl_exec($ch);
+            $curlError = curl_error($ch);
+            curl_close($ch);
+            
+            if ($response !== false && empty($curlError)) {
                 $json = json_decode($response, true);
                 if (isset($json['candidates'][0]['content']['parts'][0]['text'])) {
                     $generatedSql = trim($json['candidates'][0]['content']['parts'][0]['text']);
@@ -86,7 +88,7 @@ class AiController {
                     $queryError = "Failed to parse AI response. Check API key and quota.";
                 }
             } else {
-                $queryError = "Failed to connect to AI service.";
+                $queryError = "Failed to connect to AI service. " . $curlError;
             }
         } else if (!$apiKey && $userQuestion) {
             $queryError = "API Key is required to use AI Query. Please set GEMINI_API_KEY in .env file.";

@@ -9,6 +9,10 @@ if ($url === '/upload') {
     require __DIR__ . '/../src/Controllers/UploadController.php';
     $controller = new UploadController();
     $controller->upload();
+} elseif ($url === '/remove-db') {
+    require __DIR__ . '/../src/Controllers/UploadController.php';
+    $controller = new UploadController();
+    $controller->remove();
 } elseif (isset($urlPieces[0]) && $urlPieces[0] === 'view' && isset($urlPieces[1])) {
     
     $tableName = $urlPieces[1]; 
