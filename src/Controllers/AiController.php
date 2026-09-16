@@ -40,7 +40,7 @@ class AiController {
             // Call Gemini
             $prompt = "Given the following SQLite schema:\n$schemaString\n\nWrite a single valid SQLite SQL query to answer the user's question: \"$userQuestion\"\nOnly return the raw SQL string without formatting, markdown, or explanation. It should start with SELECT.";
             
-            $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=' . $apiKey;
+            $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=' . $apiKey;
             $data = [
                 "contents" => [
                     ["parts" => [["text" => $prompt]]]
