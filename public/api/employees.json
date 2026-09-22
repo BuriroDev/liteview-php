@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "name": "John Doe",
+    "position": "Software Engineer",
+    "department": "Engineering",
+    "salary": 95000,
+    "status": "Active"
+  },
+  {
+    "id": 2,
+    "name": "Jane Smith",
+    "position": "Project Manager",
+    "department": "Operations",
+    "salary": 105000,
+    "status": "Active"
+  },
+  {
+    "id": 3,
+    "name": "Alice Johnson",
+    "position": "HR Specialist",
+    "department": "Human Resources",
+    "salary": 72000,
+    "status": "On Leave"
+  },
+  {
+    "id": 4,
+    "name": "Bob Williams",
+    "position": "Backend Developer",
+    "department": "Engineering",
+    "salary": 90000,
+    "status": "Active"
+  },
+  {
+    "id": 5,
+    "name": "Charlie Brown",
+    "position": "Data Analyst",
+    "department": "Data",
+    "salary": 82000,
+    "status": "Terminated"
+  }
+]
