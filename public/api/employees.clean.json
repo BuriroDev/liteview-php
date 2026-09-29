@@ -5,9 +5,7 @@
     "position": "Software Engineer",
     "department": "Engineering",
     "salary": 95000,
-    "status": "Active",
-    "ssn": "987-65-4321",
-    "password_hash": "$2y$10$wT7R1qZJtVbKl5XoP9uL4eM9QvN8W0s2x1z9k3y7a5b1c"
+    "status": "Active"
   },
   {
     "id": 2,
@@ -21,28 +19,24 @@
     "id": 3,
     "name": "Alice Johnson",
     "position": "HR Specialist",
-    "department": null,
+    "department": "Human Resources",
     "salary": 72000,
-    "status": "On Leave",
-    "email": "alice_at_company"
+    "status": "On Leave"
   },
   {
     "id": 4,
     "name": "Bob Williams",
     "position": "Backend Developer",
     "department": "Engineering",
-    "salary": -90000,
+    "salary": 90000,
     "status": "Active"
   },
   {
-    "id": 2,
+    "id": 5,
     "name": "Charlie Brown",
     "position": "Data Analyst",
     "department": "Data",
     "salary": 82000,
-    "status": "Terminated",
-    "active_account": true,
-    "system_access_level": "Admin",
-    "next_review_date": "2027-04-12"
+    "status": "Terminated"
   }
 ]

@@ -7,20 +7,14 @@ header('Access-Control-Allow-Methods: GET');
 $jsonFile = __DIR__ . '/employees.json';
 
 if (file_exists($jsonFile)) {
-    // Read the JSON file
-    $data = file_get_contents($jsonFile);
-    
-    // Optional: You can decode/manipulate the data here if needed
-    // $decodedData = json_decode($data, true);
-    
-    // Output the JSON data
+    // Read and output the JSON data with 200 OK
     http_response_code(200);
-    echo $data;
+    echo file_get_contents($jsonFile);
 } else {
-    // Return a 404 error if the file doesn't exist
     http_response_code(404);
     echo json_encode([
         "status" => "error",
+        "code" => 404,
         "message" => "Employees data file not found."
-    ]);
+    ], JSON_PRETTY_PRINT);
 }
