@@ -30,10 +30,13 @@ if ($url === '/upload') {
     require __DIR__ . '/../src/Controllers/AiController.php';
     $controller = new AiController();
     $controller->ask();
-} elseif ($url === '/') {
+} elseif ($url === '/' || $url === '') {
     require __DIR__ . '/../src/Controllers/HomeController.php';
     $controller = new HomeController();
     $controller->index();
+} elseif ($url === '/api' || $url === '/api/' || (isset($urlPieces[0]) && $urlPieces[0] === 'api')) {
+    require __DIR__ . '/api/index.php';
+    exit;
 } else {
     http_response_code(404);
     echo "404 - Page not found";

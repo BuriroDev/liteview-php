@@ -2,19 +2,18 @@
 // Set headers to output JSON and allow Cross-Origin requests (important for API monitors)
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 
-$jsonFile = __DIR__ . '/employees.json';
+// Respond with a solid 500 Internal Server Error
+http_response_code(500);
 
-if (file_exists($jsonFile)) {
-    // Read and output the JSON data with 200 OK
-    http_response_code(200);
-    echo file_get_contents($jsonFile);
-} else {
-    http_response_code(404);
-    echo json_encode([
-        "status" => "error",
-        "code" => 404,
-        "message" => "Employees data file not found."
-    ], JSON_PRETTY_PRINT);
-}
+echo json_encode([
+    "status" => "error",
+    "code" => 500,
+    "error" => "Internal Server Error",
+    "message" => "Critical API Error: Database connection failed. SQLSTATE[HY000] [2002] Connection refused.",
+    "exception" => "PDOException: SQLSTATE[HY000] [2002] Connection refused in /var/www/liteview/src/Database.php:24",
+    "details" => "Failed to establish a connection to the primary database service. Host unreachable.",
+    "timestamp" => date('c')
+], JSON_PRETTY_PRINT);
+exit;
